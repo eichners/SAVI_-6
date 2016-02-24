@@ -1,6 +1,5 @@
 // SCRIPT #3 FOR ASSIGNMENT 6: DISTRICT 13 SCHOOLS #1: FIRST ATTEMPT WITH STRIPPED DOWN CONTENT
 
-
 var map = L.map('map').setView([40.65,-73.93], 12);
 
 // set a tile layer to be CartoDB tiles 
@@ -11,257 +10,202 @@ var CartoDBTiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{
 // add these tiles to our map
 map.addLayer(CartoDBTiles);
 
-//I want to add 3 JSON layers. Maybe the two that will be used mainly as shape files should be in different format? 
-//each treated individually with block of javascript here?
-
-//var D13NYBBMaskGeoJSON;
-//var D13ShapeGeoJSON;
-//set data layer as global variable so we can use it in the layer control below
-var SchoolDemoGeoJSON;
+//3 LAYERS TO ADD:
+// set data layer as global variable so we can use it in the layer control below
+var d13MaskGeoJSON;
+var d13PolygonGeoJSON;
+var SchoolDemographicsGeoJSON;
 
 
-// use jQuery get geoJSON to grab geoJson layer, parse it, then plot it on the map using the plotDataset function
-$.getJSON("geojson/SchoolFtPrints_Demographics.geojson", function( data ) {
-    var dataset = data;
-    // draw the dataset on the map
-    plotDataset(dataset);
-    //create the sidebar with links to fire polygons on the map
-    createListForClick(dataset);
-});
+// LAYER 1:
+// NYC BOROUGH BOUNDARIES: 
+// earlier, when these layers were showing up, the styles were applied to both layers 
+// in trying to work though that, nothing shows now. Anyway;
+// this layer should be NYBB with  District 13 CARVED OUT OF SHAPE 
 
-// function to plot the dataset passed to it
-function plotDataset(dataset) {
-    SchoolDemoGeoJSON = L.geoJson(dataset, {
-        style: schoolStyle,
-        onEachFeature: SchoolStyleOnEachFeature
-    }).addTo(map);
+addd13Mask();
 
-    // create layer controls
-    createLayerControls(); 
-}
+function addd13Mask() {
+    //add borough boundary and district 13 mask polygons
+$.getJSON( "geojson/D13Mask_2NYCBB.geojson", function( data ) {
+    var district13Mask = data;
+    console.log(data)
 
-// function that sets the style of the geojson layer
-var schoolStyle = function (feature, latlng) {
-
-    var Percent = ;
-
-    var style = {
+  var district13Style = function (feature, geometry){
+// d13Mask is not definined. I don't understand where it should be defined -- isn't it set here to = data?
+    var d13MaskStyle = ( {
         weight: 1,
-        opacity: .25,
-        color: 'grey',
-        fillOpacity: fillOpacity,
-        fillColor: fillColor
-    };
-
-    return Style;
-
-}
-/* percentage calcuated in data file. How can I show percentage of enrollment for 4 groups at each school?
-function calculatePercentage(feature) {
-    var output = [];
-    var numerator = parseFloat(feature.properties.ACS_13_5YR_B07201_HD01_VD14);
-    var denominator = parseFloat(feature.properties.ACS_13_5YR_B07201_HD01_VD01);
-    var percentage = ((numerator/denominator) * 100).toFixed(0);
-    output.push(numerator);
-    output.push(denominator);
-    output.push(percentage);
-    return output;    
-}*/
-
-// function that fills polygons with color based on the data
-function fillColorPercentage(d) {
-    return d > 90 ? '#006d2c' :
-           d > 70 ? '#31a354' :
-           d > 50 ? '#74c476' :
-           d > 30 ? '#a1d99b' :
-           d > 10 ? '#c7e9c0' :
-                   '#edf8e9';
-}
-
-// function that sets the fillOpacity of layers -- if % is 0 then make polygons transparent
-function fillOpacity(d) {
-    return d == 0 ? 0.0 :
-                    0.75;
-}
-
-// empty L.popup so we can fire it outside of the map
-var popup = new L.Popup();
-
-// set up a counter so we can assign an ID to each layer
-var count = 0;
-
-// on each feature function that loops through the dataset, binds popups, and creates a count
-var SchoolStyleOnEachFeature = function(feature,layer){
-    var calc = calculatePercentage(feature);
-
-    // let's bind some feature properties to a pop up with an .on("click", ...) command. We do this so we can fire it both on and off the map
-    layer.on("click", function (e) {
-        var bounds = layer.getBounds();
-        var popupContent = "<strong>Total Enrollment:</strong> " + calc[1] + "<br /><strong>percent black:</strong> " + calc[0] + "%"  + "<br /><strong>Percentage white:</strong> " + calc[2] + "%";
-        popup.setLatLng(bounds.getCenter());
-        popup.setContent(popupContent);
-        map.openPopup(popup);
+        opacity: .5,
+        color:'black',
+        fillOpacity: .6,
+        fillColor: "white",
     });
 
-    // we'll now add an ID to each layer so we can fire the popup outside of the map
-    layer._leaflet_id = 'acsLayerID' + count;
-    count++;
+    return district13Mask
 
 }
 
+        var d13Mask = function (feature, layer) {
 
-function createLayerControls(){
-    // add in layer controls
-    var baseMaps = {
-        "CartoDB Basemap": CartoDBTiles,
-    };
+            // let's bind some feature properties to a pop up
+            layer.bindLabel(feature.properties.BoroName);
+        };
+    // create Leaflet layer using L.geojson; don't add to the map just yet
+    d13MaskGeoJSON = L.geoJson(district13Mask, {
+        style: d13MaskStyle,
+        //D13MaskStyle not defined
+    });
 
-    var overlayMaps = {
-        "Percentage Moved to US in Last Year": acsGeoJSON,
-    };
-
-    // add control
-    L.control.layers(baseMaps, overlayMaps).addTo(map);
-    
-}
-
-
-
-
-// add in a legend to make sense of it all
-// create a container for the legend and set the location
-
-var legend = L.control({position: 'bottomright'});
-
-// using a function, create a div element for the legend and return that div
-legend.onAdd = function (map) {
-
-    // a method in Leaflet for creating new divs and setting classes
-    var div = L.DomUtil.create('div', 'legend'),
-        amounts = [0, 1, 3, 5, 7, 9];
-
-        div.innerHTML += '<p>Percentage Population<br />That Moved to US in<br />the Last Year</p>';
-
-        for (var i = 0; i < amounts.length; i++) {
-            div.innerHTML +=
-                '<i style="background:' + fillColorPercentage(amounts[i] + 1) + '"></i> ' +
-                amounts[i] + (amounts[i + 1] ? '% &ndash;' + amounts[i + 1] + '%<br />' : '% +<br />');
-        }
-
-    return div;
+    addd13Polygon ();
+    });
 };
 
 
-// add the legend to the map
-legend.addTo(map);
 
+// LAYER #2:
+// DISTRICT 13 BOUNDARY SHAPE: why are these styles being applied to other layer?
 
+// set data layer as global variable so we can use it in the layer control below
+function addd13Polygon () {
+// use jQuery get geoJSON to grab geoJson layer, parse it, then plot it on the map using the plotDataset function
+$.getJSON( "geojson/D13_polygon.geojson", function( data ) {
+    var d13Polygon = data;
 
-// function to create a list in the right hand column with links that will launch the pop-ups on the map
-function createListForClick(dataset) {
-    // use d3 to select the div and then iterate over the dataset appending a list element with a link for clicking and firing
-    // first we'll create an unordered list ul elelemnt inside the <div id='list'></div>. The result will be <div id='list'><ul></ul></div>
-    // all below d3. before ; are chained d3 functions 
-    var ULs = d3.select("#list")
-                .append("ul");
+    //how do you use console.log? not always working.
+    console.log(data)
 
+// should I be creating this style with a function or just by defining variable d13Style?
+    var d13Style = function (feature, latlng) {
 
-    // now that we have a selection and something appended to the selection, let's create all of the list elements (li) with the dataset we have 
-    
-    ULs.selectAll("li")
-        .data(dataset.features)
-        .enter()
-        .append("li")
-        .html(function(d) { 
-            return '<a href="#">' + d.properties.ACS_13_5YR_B07201_GEOdisplay_label + '</a>'; 
-        })
-        .on('click', function(d, i) {
-            console.log(d.properties.ACS_13_5YR_B07201_HD02_VD01);
-            console.log(i);
-            var leafletId = 'acsLayerID' + i;
-            map._layers[leafletId].fire('click');
-        });
+    var style = {
+        weight: 2,
+        opacity: .5,
+        color:'black',
+        fillOpacity: .2,
+        fillColor: "#666666",
+    };
+    return style;
 
-
-}
-
-
-// lets add data from the API now
-// set a global variable to use in the D3 scale below
-// use jQuery geoJSON to grab data from API
-$.getJSON( "https://data.cityofnewyork.us/resource/erm2-nwe9.json?$$app_token=rQIMJbYqnCnhVM9XNPHE9tj0g&borough=BROOKLYN&complaint_type=Noise&status=Open", function( data ) {
-    var dataset = data;
-    // draw the dataset on the map
-    plotAPIData(dataset);
-
-});
-
-// create a leaflet layer group to add your API dots to so we can add these to the map
-var apiLayerGroup = L.layerGroup();
-
-// since these data are not geoJson, we have to build our dots from the data by hand
-function plotAPIData(dataset) {
-    // set up D3 ordinal scle for coloring the dots just once
-    var ordinalScale = setUpD3Scale(dataset);
-    //console.log(ordinalScale("Noise, Barking Dog (NR5)"));
-
-
-    // loop through each object in the dataset and create a circle marker for each one using a jQuery for each loop
-    $.each(dataset, function( index, value ) {
-
-        // check to see if lat or lon is undefined or null
-        if ((typeof value.latitude !== "undefined" || typeof value.longitude !== "undefined") || (value.latitude && value.longitude)) {
-            // create a leaflet lat lon object to use in L.circleMarker
-            var latlng = L.latLng(value.latitude, value.longitude);
-     
-            var apiMarker = L.circleMarker(latlng, {
-                stroke: false,
-                fillColor: ordinalScale(value.descriptor),
-                fillOpacity: 1,
-                radius: 5
-            });
-
-            // bind a simple popup so we know what the noise complaint is
-            apiMarker.bindPopup(value.descriptor);
-
-            // add dots to the layer group
-            apiLayerGroup.addLayer(apiMarker);
-
+    // var d13Style = {
+    //     weight: 2,
+    //     opacity: .5,
+    //     color:'black',
+    //     fillOpacity: .2,
+    //     fillColor: "#666666",
+    // };
+    //return d13Style;
+        
+    // function that binds popup data to district 13
+    var d13Click = function (feature, layer) {
+            // let's bind some feature properties to a pop up
+        layer.bindPopup(feature.properties.name);
         }
 
+    // create Leaflet layer using L.geojson; don't add to the map just yet
+    d13PolygonGeoJSON = L.geoJson(d13Polygon, {
+        style: d13Style,
+        onEachFeature: d13Click
     });
 
-    apiLayerGroup.addTo(map);
-
+    addSchoolDemographics(); 
+};
+});
 }
 
-function setUpD3Scale(dataset) {
-    //console.log(dataset);
-    // create unique list of descriptors
-    // first we need to create an array of descriptors
-    var descriptors = [];
+// LAYER #3
+// DISTRICT 13 SCHOOL LOCATIONS: this layer has data to list and use with D3.js
+function addSchoolDemographics () {
 
-    // loop through descriptors and add to descriptor array
-    $.each(dataset, function( index, value ) {
-        descriptors.push(value.descriptor);
-    });
+    $getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
+    var schoolData = data;
+    console.log(data);
+        // school dots
+        var schoolPointToLayer = function (feature, latlng){
+            var schoolMarker = L.circle(latlng, 100, {
+                stroke: false,
+                fillColor: '#e1640f',
+                fillOpacity: 0.7
+            });
 
-    // use underscore to create a unique array
-    var descriptorsUnique = _.uniq(descriptors);
+            return schoolMarker;
+      }
+        var schoolClick = function (feature, layer) {
 
-    // create a D3 ordinal scale based on that unique array as a domain
-    var ordinalScale = d3.scale.category20()
-        .domain(descriptorsUnique);
+            // let's bind some feature properties to a pop up
+            layer.bindPopup("<strong>Name:</strong> " + feature.properties.name + "<br /><strong>Address:</strong> " + feature.properties.ADDRESS);
+        }  
+// create Leaflet layer using L.geojson; don't add to the map just yet
+        SchoolDemographicsGeoJSON = L.geoJson(schoolData, {
+            pointToLayer: schoolPointToLayer,
+            onEachFeature: schoolClick
+          });
 
-    return ordinalScale;
+// now lets add the data to the map in the order that we want it to appear
 
+        // neighborhoods on the bottom
+        d13MaskGeoJSON.addTo(map);
+
+        // subway lines next
+        d13PolygonGeoJSON.addTo(map);
+
+        // finally, the Pawn Shop dots
+        SchoolDemographicsGeoJSON.addTo(map);
+
+
+        // now create the layer controls!
+        createLayerControls(); 
+
+
+});
 }
 
+function createLayerControls(){
+
+    // add in layer controls
+    // var baseMaps = {
+    //     "CartoDB": CartoDBTiles,
+    //     "OSM Mapnik": OSMMapnikTiles,
+    //     "Mapquest Aerial": MapQuestAerialTiles
+    // };
+
+    var overlayMaps = {
+        "NYC Borough Boundaries": d13MaskGeoJSON,
+        "Brooklyn School District 13": d13PolygonGeoJSON,
+        "District 13 Public Schools": SchoolDemographicsGeoJSON
+    };
+    
+    // add control
+    L.control.layers(overlayMaps).addTo(map);
+
+};
 
 
 
 
+// // function to create a list in the right hand column with links that will launch the pop-ups on the map
+// function createListForClick(dataset) {
+//     // use d3 to select the div and then iterate over the dataset appending a list element with a link for clicking and firing
+//     // first we'll create an unordered list ul elelemnt inside the <div id='list'></div>. The result will be <div id='list'><ul></ul></div>
+//     // all below d3. before ; are chained d3 functions 
+//     var ULs = d3.select("#list")
+//                 .append("ul");
 
 
+//     // now that we have a selection and something appended to the selection, let's create all of the list elements (li) with the dataset we have 
+    
+//     ULs.selectAll("li")
+//         .data(dataset.features)
+//         .enter()
+//         .append("li")
+//         .html(function(d) { 
+//             return '<a href="#">' + d.properties.ACS_13_5YR_B07201_GEOdisplay_label + '</a>'; 
+//         })
+//         .on('click', function(d, i) {
+//             console.log(d.properties.location);
+//             console.log(i);
+//             var leafletId = 'acsLayerID' + i;
+//             map._layers[leafletId].fire('click');
+//         });
 
-
+   // createLayerControls();  *********** uncomment later
+// }

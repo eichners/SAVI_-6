@@ -7,6 +7,12 @@ body {
     padding: 0;
     margin: 0;
 }
+p {
+    font-family: Arial, Verdana;
+    font-size: 11;
+    word-wrap: break-word;
+    overflow: hidden;
+}
 html, body, #map {
     height: 100%;
 }
@@ -21,6 +27,7 @@ html, body, #map {
     height: 100%;
     float: right;
     margin: 20px 0px 0px 20px;
+    padding: 20px 0px 0px 20px;
     overflow: auto;
     display: inline-block;
     font-family: Arial, Verdana;
