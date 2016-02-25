@@ -1,0 +1,33 @@
+addd13Mask();
+
+function addd13Mask() {
+    //add borough boundary and district 13 mask polygons
+$.getJSON( "geojson/D13Mask_2NYCBB.geojson", function( data ) {
+    var district13Mask = data;
+    console.log(data)
+
+  var district13Style = function (feature, geometry){
+// d13Mask is not definined. I don't understand where it should be defined -- isn't it set here to = data?
+    var d13MaskStyle = {
+        weight: 1,
+        opacity: .5,
+        color:'black',
+        fillOpacity: .6,
+        fillColor: "white",
+    };
+    return d13MaskStyle;
+}
+        var d13Mask = function (feature, layer) {
+
+            // let's bind some feature properties to a pop up 
+            // bindLabel is not part of leaflet -- need another library
+            layer.bindPopup(feature.properties.BoroName);
+        };
+    // create Leaflet layer using L.geojson; don't add to the map just yet
+    d13MaskGeoJSON = L.geoJson(district13Mask, {
+        style: district13Style, //, call back the function district13Style, not style name
+        onEachFeature: d13Mask
+    });
+    addd13Polygon ();
+    });
+};

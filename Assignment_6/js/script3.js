@@ -33,39 +33,30 @@ $.getJSON( "geojson/D13Mask_2NYCBB.geojson", function( data ) {
 
   var district13Style = function (feature, geometry){
 // d13Mask is not definined. I don't understand where it should be defined -- isn't it set here to = data?
-    var d13MaskStyle = ( {
+    var d13MaskStyle = {
         weight: 1,
         opacity: .5,
         color:'black',
         fillOpacity: .6,
         fillColor: "white",
-    });
-
-    return district13Mask
-
+    };
+    return d13MaskStyle;
 }
-
         var d13Mask = function (feature, layer) {
-
-            // let's bind some feature properties to a pop up
-            layer.bindLabel(feature.properties.BoroName);
+            // let's bind some feature properties to a pop up 
+            // bindLabel is not part of leaflet -- need another library
+            layer.bindPopup(feature.properties.BoroName);
         };
     // create Leaflet layer using L.geojson; don't add to the map just yet
     d13MaskGeoJSON = L.geoJson(district13Mask, {
-        style: d13MaskStyle,
-        //D13MaskStyle not defined
+        style: district13Style, //, call back the function district13Style, not style name
+        onEachFeature: d13Mask
     });
-
     addd13Polygon ();
     });
 };
 
-
-
-// LAYER #2:
-// DISTRICT 13 BOUNDARY SHAPE: why are these styles being applied to other layer?
-
-// set data layer as global variable so we can use it in the layer control below
+// LAYER #2: 
 function addd13Polygon () {
 // use jQuery get geoJSON to grab geoJson layer, parse it, then plot it on the map using the plotDataset function
 $.getJSON( "geojson/D13_polygon.geojson", function( data ) {
@@ -73,7 +64,6 @@ $.getJSON( "geojson/D13_polygon.geojson", function( data ) {
 
     //how do you use console.log? not always working.
     console.log(data)
-
 // should I be creating this style with a function or just by defining variable d13Style?
     var d13Style = function (feature, latlng) {
 
@@ -81,11 +71,11 @@ $.getJSON( "geojson/D13_polygon.geojson", function( data ) {
         weight: 2,
         opacity: .5,
         color:'black',
-        fillOpacity: .2,
+        fillOpacity: .0,
         fillColor: "#666666",
     };
     return style;
-
+};
     // var d13Style = {
     //     weight: 2,
     //     opacity: .5,
@@ -93,53 +83,49 @@ $.getJSON( "geojson/D13_polygon.geojson", function( data ) {
     //     fillOpacity: .2,
     //     fillColor: "#666666",
     // };
-    //return d13Style;
-        
+    //return d13Style;       
     // function that binds popup data to district 13
     var d13Click = function (feature, layer) {
             // let's bind some feature properties to a pop up
         layer.bindPopup(feature.properties.name);
         }
-
     // create Leaflet layer using L.geojson; don't add to the map just yet
     d13PolygonGeoJSON = L.geoJson(d13Polygon, {
         style: d13Style,
         onEachFeature: d13Click
     });
-
     addSchoolDemographics(); 
-};
-});
+    });
 }
-
 // LAYER #3
 // DISTRICT 13 SCHOOL LOCATIONS: this layer has data to list and use with D3.js
 function addSchoolDemographics () {
 
-    $getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
-    var schoolData = data;
-    console.log(data);
-        // school dots
-        var schoolPointToLayer = function (feature, latlng){
-            var schoolMarker = L.circle(latlng, 100, {
-                stroke: false,
-                fillColor: '#e1640f',
-                fillOpacity: 0.7
-            });
+    $.getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
+        var schoolShape = data;
+        console.log(data);
+                                // school shapes
+        var schoolStyle= function (feature, geometry){
+            var shapeStyle =  {
+                weight: 1,
+                color: "black",
+                fillColor: "#666666",
+                fillOpacity: 0.7,
+            };
 
-            return schoolMarker;
+            return shapeStyle;
       }
         var schoolClick = function (feature, layer) {
 
             // let's bind some feature properties to a pop up
-            layer.bindPopup("<strong>Name:</strong> " + feature.properties.name + "<br /><strong>Address:</strong> " + feature.properties.ADDRESS);
-        }  
+            layer.bindPopup(feature.properties.School +  "<br>" + feature.properties.charter);
+        };
 // create Leaflet layer using L.geojson; don't add to the map just yet
-        SchoolDemographicsGeoJSON = L.geoJson(schoolData, {
-            pointToLayer: schoolPointToLayer,
+        SchoolDemographicsGeoJSON = L.geoJson(schoolStyle, {
+            style: schoolStyle,
             onEachFeature: schoolClick
           });
-
+})
 // now lets add the data to the map in the order that we want it to appear
 
         // neighborhoods on the bottom
@@ -155,9 +141,8 @@ function addSchoolDemographics () {
         // now create the layer controls!
         createLayerControls(); 
 
+};
 
-});
-}
 
 function createLayerControls(){
 
