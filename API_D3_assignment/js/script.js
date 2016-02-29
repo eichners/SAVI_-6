@@ -33,6 +33,7 @@ function plotDataset(dataset) {
     SchoolDemographicsGeoJSON = L.geoJson(dataset, {
         style: schoolStyle,
         onEachFeature: schoolsOnEachFeature
+// **** this still isn't defined but I'm trying to do so on line 82
     }).addTo(map);
 
     // create layer controls
@@ -89,7 +90,7 @@ var schooolsOnEachFeature = function(features){
 // *** what should var schoolInfo = ?
     layer.on("click", function (e) {
         var bounds = layer.getBounds();
-        var schoolInfo = schoolStyle;
+        var popContent = schoolStyle;
         popup.setLatLng(bounds.getCenter());
         popup.setContent(popupContent);
         map.openPopup(popup);

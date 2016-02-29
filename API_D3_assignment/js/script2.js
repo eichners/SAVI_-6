@@ -121,16 +121,17 @@ function createListForClick(dataset) {
 
 
     // now that we have a selection and something appended to the selection, let's create all of the list elements (li) with the dataset we have 
-    
+    // can I use the geojson file for this? example uses a csv
+    // I don't understand how to return the category I want
     ULs.selectAll("li")
         .data(dataset.features)
         .enter()
         .append("li")
         .html(function(d) { 
-            return '<a href="#">' + d.properties.ACS_13_5YR_B07201_GEOdisplay_label + '</a>'; 
+            return '<a href="#">' + d.properties.SchoolDemographicsWGS84.geojson.School + '</a>'; 
         })
         .on('click', function(d, i) {
-            console.log(d.properties.ACS_13_5YR_B07201_HD02_VD01);
+            console.log(d.properties.SchoolDemographicsWGS84_School);
             console.log(i);
             var leafletId = 'acsLayerID' + i;
             map._layers[leafletId].fire('click');
