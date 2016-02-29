@@ -120,9 +120,22 @@ $.getJSON( "geojson/D13_polygon.geojson", function( data ) {
 
 function addSchoolDemographics () {
 
-    $.getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
-        var schoolShape = data;
+$.getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
+    var schoolShape = data;
         console.log(data);
+        plotDataset(dataset);
+            //create the sidebar with links to fire polygons on the map
+        createListForClick(dataset);
+});
+function plotDataset(dataset) {
+SchoolDemoGeoJSON = L.geoJson(dataset, {
+        style: schoolStyle,
+        onEachFeature: SchoolStyleOnEachFeature
+
+
+    // create layer controls
+
+});
 
         // school shapes
         var schoolStyleFunction = function (feature, geometry){
@@ -182,8 +195,8 @@ function addSchoolDemographics () {
         // now create the layer controls!
         createLayerControls(); 
 
-    });
-}
+    };
+
 
 function createLayerControls(){
 
@@ -203,7 +216,7 @@ function createLayerControls(){
     // add control
     L.control.layers(overlayMaps).addTo(map);
 
-}
+};
 
 
 

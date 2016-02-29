@@ -1,12 +1,6 @@
 // SCRIPT #3 FOR ASSIGNMENT 6: DISTRICT 13 SCHOOLS #1: FIRST ATTEMPT WITH STRIPPED DOWN CONTENT
 
-var map = L.map('map')
-map.fitBounds([
-    [40.671082, -73.939301],
-    [40.707790, -73.999456]
-]);
-
-
+var map = L.map('map').setView([40.65,-73.93], 13);
 
 // set a tile layer to be CartoDB tiles 
 var CartoDBTiles = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',{
@@ -130,8 +124,6 @@ function addSchoolDemographics () {
             var value = feature.properties.charter; 
             var fillColor = 'white';
             var fillOpacity = .5;
-            var weight = 1;
-            var color = 'Black';
 
             if (value ==="charter") {
                     fillColor = "#61aa32";
@@ -145,8 +137,6 @@ function addSchoolDemographics () {
             weight: 1,
             opacity: 0.3,
             color: "#4289b4",
-            wieght: 1,
-            color: 'Black',
             fillOpacity: fillOpacity,
             fillColor: fillColor
         };
