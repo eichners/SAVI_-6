@@ -20,31 +20,30 @@ var SchoolDemographicsGeoJSON;
 
 // use jQuery get geoJSON to grab geoJson layer, parse it, then plot it on the map using the plotDataset function
 $.getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
-    var dataset = data;
+    var dataset = data; // d3
     // draw the dataset on the map
     plotDataset(dataset);
     //create the sidebar with links to fire polygons on the map
-    //createListForClick(dataset);
-    console.log(data)
+    createListForClick(dataset);
 });
-// function to plot the dataset passed to it
+// function to plot the dataset passed to it -- does this mean I can now access data with d when using d3?
 function plotDataset(dataset) {
     SchoolDemographicsGeoJSON = L.geoJson(dataset, {
 	style: schoolStyle,
-    //    onEachFeature: schoolsOnEachFeature
+    onEachFeature: schoolsOnEachFeature
 
     }).addTo(map);
 
     // create layer controls
-    //createLayerControls(); 
+    createLayerControls(); 
 }
 // **** I am trying to define colors of charter and public schools as functions so I can use them for legend:
 var schoolStyle = function (feature, geometry) {
 
- var schoolType = schoolColor(feature.properties.charter); 
+ var schoolType = feature.properties.charter; 
 
      var style = {
-           weight: 1,
+           weight: 0,
             color:'Black',
             fillOpacity: 0.8,
             fillColor:schoolColor(schoolType)
@@ -53,17 +52,19 @@ var schoolStyle = function (feature, geometry) {
 
             return style;
         }
-
+// ** should this parameter be d? or should it be schoolType? 
  function schoolColor(schoolType) {
+
  	if (schoolType ==="charter") {
+    console.log(schoolType)
          fillColor = "#61aa32";
          } 
          else {
          fillColor = "#4289b4";
          }
+         return fillColor;
+     }
 
-         return schoolColor;
- };
 
 // empty L.popup so we can fire it outside of the map
 var popup = new L.Popup();
@@ -72,20 +73,22 @@ var popup = new L.Popup();
 var count = 0;
 
 // on each feature function that loops through the dataset, binds popups, and creates a count
-var schooolsOnEachFeature = function(features){
+var schoolsOnEachFeature = function(feature, layer){
+    // layer refers to leaflet functino below
     // *** schoolsOnEachFeature is not defined. Where do I define this? function declared above, parameters defined in next line
     // *** parameters to feed into function should be dataset -- features
-    var schoolInfo = feature.properties
-
+    var schoolType = (feature.properties.charter);
+console.log(feature.properties)
     // bind some feature properties to a pop up with an .on("click", ...) command. We do this so we can fire it both on and off the map
 // *** where do I list the features I want to list in popup window? "School"  "school typ" "charter"  "15Total En"
 // *** also want to list percent of each demographic represented by DOE data collection
 // *** what should var schoolInfo = ?
     layer.on("click", function (e) {
         var bounds = layer.getBounds();
-        var popContent = data;
+        var popContent = feature.properties.School + "<br>" + feature.properties.schoolType;
+        console.log(feature.properties)
         popup.setLatLng(bounds.getCenter());
-        popup.setContent(popupContent);
+        popup.setContent(popContent);
         map.openPopup(popup);
     });
 
@@ -128,14 +131,14 @@ function createListForClick(dataset) {
         .enter()
         .append("li")
         .html(function(d) { 
-            return '<a href="#">' + d.properties.SchoolDemographicsWGS84.geojson.School + '</a>'; 
+            console.log(d)
+            return '<a href="#">' + d.properties.charter + '</a>'; 
+
         })
         .on('click', function(d, i) {
-            console.log(d.properties.SchoolDemographicsWGS84_School);
-            console.log(i);
-            var leafletId = 'acsLayerID' + i;
+            var leafletId = 'schoolsLayerID' + i;
             map._layers[leafletId].fire('click');
         });
+ }
 
 
-}
