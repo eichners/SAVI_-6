@@ -74,18 +74,19 @@ var count = 0;
 
 // on each feature function that loops through the dataset, binds popups, and creates a count
 var schoolsOnEachFeature = function(feature, layer){
-    // layer refers to leaflet function below
+    // layer refers to leaflet functino below
+    // *** schoolsOnEachFeature is not defined. Where do I define this? function declared above, parameters defined in next line
     // *** parameters to feed into function should be dataset -- features
-    var schoolInfo = (feature.properties);
-    // changed this from :  var schoolType = (feature.properties.charter); whcih was loading up
-    console.log(feature.properties)
+    var schoolType = (feature.properties.charter);
+console.log(feature.properties)
     // bind some feature properties to a pop up with an .on("click", ...) command. We do this so we can fire it both on and off the map
-    // *** To list percent of each demographic represented by DOE data collection: did not work when Properties category contained a number. when I removed number from json category, it works
-    // *** NOw, I want to fix percent number to 1 place after decimal. Not working.
+// *** where do I list the features I want to list in popup window? "School"  "school typ" "charter"  "15Total En"
+// *** also want to list percent of each demographic represented by DOE data collection
+// *** what should var schoolInfo = ?
     layer.on("click", function (e) {
         var bounds = layer.getBounds();
-        var popContent = feature.properties.School + "<br ><strong>Total Enrollment 2015: </strong>" + feature.properties.TotalEnroll + "<br /><strong>Black: </strong>" + feature.properties.PerBlack*100 + "%"
-         + "<br>" + "<strong>White: </strong>" +  feature.properties.PerWhite*100.toFixed(1) + "%"  + "<br>" + "<strong>Asian: </strong>" +  feature.properties.PerAsian*100 + "%" + "<br>" + "<strong>Hispanic: </strong>" +  feature.properties.PerHispanic*100 + "%";
+        var popContent = feature.properties.School + "<br>" + feature.properties.schoolType;
+        console.log(feature.properties)
         popup.setLatLng(bounds.getCenter());
         popup.setContent(popContent);
         map.openPopup(popup);
@@ -131,7 +132,7 @@ function createListForClick(dataset) {
         .append("li")
         .html(function(d) { 
             console.log(d)
-            return '<a href="#">' + d.properties.School + '</a>' + "<br>" + d.properties.schoolType; 
+            return '<a href="#">' + d.properties.charter + '</a>'; 
 
         })
         .on('click', function(d, i) {
