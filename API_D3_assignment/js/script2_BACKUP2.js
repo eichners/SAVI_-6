@@ -1,5 +1,7 @@
+//trying a stripped down version to see if I can get data to load at all
 
-var map = L.map('map');
+
+var map = L.map('map')
     map.fitBounds([
     [40.671082, -73.939301],
     [40.707790, -73.999456]
@@ -25,38 +27,7 @@ map.addLayer(OpenMapSurfer_Grayscale);
 var d13PolygonGeoJSON;
 var SchoolDemographicsGeoJSON;
 
-addDistrict13();
-
-function addDistrict13() {
-// use jQuery get geoJSON to grab geoJson layer, parse it, then plot it on the map using the plotDataset function
-$.getJSON( "geojson/D13_polygon.geojson", function( data ) {
-    var d13Polygon = data;
-
-    // should I be creating this style with a function or just by defining variable d13Style?
-    var d13Style = function (feature, latlng) {
-
-        var style = {
-            weight: 1,
-            color:'Black',
-            fillColor: 'White',
-            fillOpacity: 0.0
-
-        };
-        return style;
-    };
-  
-
-    d13PolygonGeoJSON = L.geoJson(d13Polygon, {
-        style: d13Style,
-    });
-
-    addSchoolData();
-    });
-  
-}
-
-function addSchoolData() {
-
+add
 // use jQuery get geoJSON to grab geoJson layer, parse it, then plot it on the map using the plotDataset function
 $.getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
     var dataset = data; // d3
@@ -64,45 +35,45 @@ $.getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
     plotDataset(dataset);
     //create the sidebar with links to fire polygons on the map
     createListForClick(dataset);
-
-    // function to plot the dataset passed to it -- does this mean I can now access data with d when using d3?
-    function plotDataset(dataset) {
+});
+// function to plot the dataset passed to it -- does this mean I can now access data with d when using d3?
+function plotDataset(dataset) {
     SchoolDemographicsGeoJSON = L.geoJson(dataset, {
-    style: schoolStyle,
+	style: schoolStyle,
     onEachFeature: schoolsOnEachFeature
-    });
+
+    }).addTo(map);
 
     // create layer controls
     createLayerControls(); 
-    }
-    // **** I am trying to define colors of charter and public schools as functions so I can use them for legend:
-    var schoolStyle = function (feature, geometry) {
-        var schoolType = feature.properties.charter; {
+}
+// **** I am trying to define colors of charter and public schools as functions so I can use them for legend:
+var schoolStyle = function (feature, geometry) {
 
-        var style = {
+ var schoolType = feature.properties.charter; 
+
+     var style = {
            weight: 1,
             color:'Black',
             fillOpacity: 1,
             fillColor:schoolColor(schoolType)
-        };
-        return style;
+
+            }
+
+            return style;
         }
+// ** should this parameter be d? or should it be schoolType? 
+ function schoolColor(schoolType) {
 
-    // ** should this parameter be d? or should it be schoolType? 
-    function schoolColor(schoolType) {
-
-        if (schoolType ==="charter") {
-
-            fillColor = "#f69705";
-        } 
-             else {
-             fillColor = "#d83700";
-             }
-
-        return fillColor;
-   
-    }
-      
+ 	if (schoolType ==="charter") {
+    console.log(schoolType)
+         fillColor = "#f69705";
+         } 
+         else {
+         fillColor = "#d83700";
+         }
+         return fillColor;
+     }
 
 
 // empty L.popup so we can fire it outside of the map
@@ -115,32 +86,26 @@ var count = 0;
 var schoolsOnEachFeature = function(feature, layer){
     // layer refers to leaflet function below
     // *** parameters to feed into function should be dataset -- features
-    // var schoolInfo = (feature.properties);
-    // bind some feature properties to a pop up with an .on("click", ...) command. Do this so we can fire it both on and off the map
+    var schoolInfo = (feature.properties);
+    // changed this from :  var schoolType = (feature.properties.charter); whcih was loading up
+    console.log(feature.properties)
+    // bind some feature properties to a pop up with an .on("click", ...) command. We do this so we can fire it both on and off the map
+    // *** To list percent of each demographic represented by DOE data collection: did not work when Properties category contained a number. when I removed number from json category, it works
+    // *** NOw, I want to fix percent number to 1 place after decimal. Not working.
     layer.on("click", function (e) {
         var bounds = layer.getBounds();
-        var popContent = feature.properties.School + "<br ><strong>Total Enrollment 2015: </strong>" + feature.properties.TotalEnroll + "<br /><strong>Black: </strong>" + (feature.properties.PerBlack*100).toFixed(1) + "%" + "<br>" + "<strong>White: </strong>" +  (feature.properties.PerWhite*100).toFixed(1) + "%"  + "<br>" + "<strong>Asian: </strong>" +  (feature.properties.PerAsian*100).toFixed(1) + "%" + "<br>" + "<strong>Hispanic: </strong>" +  (feature.properties.PerHispanic*100).toFixed(1) + "%";
+        var popContent = feature.properties.School + "<br ><strong>Total Enrollment 2015: </strong>" + feature.properties.TotalEnroll + "<br /><strong>Black: </strong>" + (feature.properties.PerBlack*100).toFixed(1) + "%"
+         + "<br>" + "<strong>White: </strong>" +  (feature.properties.PerWhite*100).toFixed(1) + "%"  + "<br>" + "<strong>Asian: </strong>" +  (feature.properties.PerAsian*100).toFixed(1) + "%" + "<br>" + "<strong>Hispanic: </strong>" +  (feature.properties.PerHispanic*100).toFixed(1) + "%";
         popup.setLatLng(bounds.getCenter());
         popup.setContent(popContent);
         map.openPopup(popup);
-    })
+    });
 
     // add an ID to each layer so we can fire the popup outside of the map
     layer._leaflet_id = 'schoolsLayerID' + count; 
     count++;
 
-    };
-      
-
-// district 13 shape
-d13PolygonGeoJSON.addTo(map);
-
-// school data
-SchoolDemographicsGeoJSON.addTo(map);
-
-};
-});
-
+}
 
 function createLayerControls(){
     // add in layer controls
@@ -149,16 +114,14 @@ function createLayerControls(){
     };
 
     var overlayMaps = {
-        "Brooklyn School District 13": d13PolygonGeoJSON,
         "District 13 Schools": SchoolDemographicsGeoJSON,
     };
 
     // CONTROL
     L.control.layers(baseMaps, overlayMaps).addTo(map);
     
-};
- 
 }
+
 
 // function to create a list in the right hand column with links that will launch the pop-ups on the map
 function createListForClick(dataset) {
@@ -166,6 +129,7 @@ function createListForClick(dataset) {
     // first we'll create an unordered list ul elelemnt inside the <div id='list'></div>. The result will be <div id='list'><ul></ul></div>
     var ULs = d3.select("#list")
                 .append("ul");
+
 
     // now that we have a selection and something appended to the selection, let's create all of the list elements (li) with the dataset we have 
     // can I use the geojson file for this? example uses a csv
@@ -175,13 +139,14 @@ function createListForClick(dataset) {
         .enter()
         .append("li")
         .html(function(d) { 
-            console.log(d);
+            console.log(d)
             return '<a href="#">' + d.properties.School + '</a>' + "<br>" + d.properties.schoolType + "<br>";
-        })
 
+        })
         .on('click', function(d, i) {
             var leafletId = 'schoolsLayerID' + i;
             map._layers[leafletId].fire('click');
         });
-}
-  
+ }
+
+
