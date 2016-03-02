@@ -36,12 +36,14 @@ $.getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
     //create the sidebar with links to fire polygons on the map
     createListForClick(dataset);
 });
-// function to plot the dataset passed to it -- does this mean I can now access data with d when using d3?
+// function to plot the dataset passed to it -
+//
 function plotDataset(dataset) {
     SchoolDemographicsGeoJSON = L.geoJson(dataset, {
 	style: schoolStyle,
     onEachFeature: schoolsOnEachFeature
-
+    // school building data did not show up because I'd removed the .addTo(map) -- still have error showing up related to addTo on line 138:
+    // addTo is undefined "cannot read property 'addTo' of undefined"
     }).addTo(map);
 
     // create layer controls
@@ -58,7 +60,7 @@ var schoolStyle = function (feature, geometry) {
             fillOpacity: 1,
             fillColor:schoolColor(schoolType)
 
-            }
+            };
 
             return style;
         }
@@ -84,11 +86,10 @@ var count = 0;
 
 // on each feature function that loops through the dataset, binds popups, and creates a count
 var schoolsOnEachFeature = function(feature, layer){
-    // layer refers to leaflet function below
+    // ...layer) refers to leaflet layer.on function below : that creates or is considered a layer
     // *** parameters to feed into function should be dataset -- features
     var schoolInfo = (feature.properties);
-    // changed this from :  var schoolType = (feature.properties.charter); whcih was loading up
-    console.log(feature.properties)
+    // changed this from :  var schoolType = (feature.properties.charter); which was loading up
     // bind some feature properties to a pop up with an .on("click", ...) command. We do this so we can fire it both on and off the map
     // *** To list percent of each demographic represented by DOE data collection: did not work when Properties category contained a number. when I removed number from json category, it works
     // *** NOw, I want to fix percent number to 1 place after decimal. Not working.
@@ -121,7 +122,30 @@ function createLayerControls(){
     L.control.layers(baseMaps, overlayMaps).addTo(map);
     
 }
+// add in a legend to make sense of it all
+// create a container for the legend and set the location
 
+var legend = L.control({position: 'bottomleft'});
+
+// using a function, create a div element for the legend and return that div
+legend.onAdd = function (map) {
+
+    // a method in Leaflet for creating new divs and setting classes
+    var div = L.DomUtil.create('div', 'legend'),
+        colors = [2;
+//schoolColor
+        div.innerHTML += '<p>Public Schools <br />in Brooklyn, <br />District 13 </p>';
+
+        for (var i = 0; i < schoolColor.length; i++) {
+        div.innerHTML +=
+        '<i style="background:' + fillColor(amounts) + '<br />' '</i>';
+
+    return div;
+};
+
+
+// add the legend to the map
+legend.addTo(map);
 
 // function to create a list in the right hand column with links that will launch the pop-ups on the map
 function createListForClick(dataset) {
