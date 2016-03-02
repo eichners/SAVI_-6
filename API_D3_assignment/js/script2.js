@@ -1,8 +1,8 @@
 
 var map = L.map('map');
     map.fitBounds([
-    [40.671082, -73.939301],
-    [40.707790, -73.999456]
+    [40.685626, -73.956567],
+    [40.700211, -73.989289]
 ]);
 var OpenMapSurfer_Grayscale = L.tileLayer('http://korona.geog.uni-heidelberg.de/tiles/roadsg/x={x}&y={y}&z={z}', {
     maxZoom: 19,
@@ -25,7 +25,7 @@ map.addLayer(OpenMapSurfer_Grayscale);
 var d13PolygonGeoJSON;
 var SchoolDemographicsGeoJSON;
 
-addDistrict13();
+addDistrict13(); 
 
 function addDistrict13() {
 // use jQuery get geoJSON to grab geoJson layer, parse it, then plot it on the map using the plotDataset function
@@ -36,8 +36,8 @@ $.getJSON( "geojson/D13_polygon.geojson", function( data ) {
     var d13Style = function (feature, latlng) {
 
         var style = {
-            weight: 1,
-            color:'Black',
+            weight: 2,
+            color:"#1381ab",
             fillColor: 'White',
             fillOpacity: 0.0
 
@@ -45,13 +45,13 @@ $.getJSON( "geojson/D13_polygon.geojson", function( data ) {
         return style;
     };
   
-
     d13PolygonGeoJSON = L.geoJson(d13Polygon, {
         style: d13Style,
     });
-
+    //I'm getting the following error message even though data is loading up fine: 
+    // Uncaught TypeError: Cannot read property 'addTo' of undefined (line 58) (error specfics point to the anonymous function on line 58  )
     addSchoolData();
-    });
+});
   
 }
 
@@ -64,20 +64,22 @@ $.getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
     plotDataset(dataset);
     //create the sidebar with links to fire polygons on the map
     createListForClick(dataset);
-
+});
     // function to plot the dataset passed to it -- does this mean I can now access data with d when using d3?
     function plotDataset(dataset) {
     SchoolDemographicsGeoJSON = L.geoJson(dataset, {
     style: schoolStyle,
     onEachFeature: schoolsOnEachFeature
-    });
+    // school building data did not show up because I'd removed the .addTo(map) -- still have error showing up related to addTo on line 138:
+    // addTo is undefined "cannot read property 'addTo' of undefined"
+    }).addTo(map);
 
     // create layer controls
     createLayerControls(); 
     }
     // **** I am trying to define colors of charter and public schools as functions so I can use them for legend:
     var schoolStyle = function (feature, geometry) {
-        var schoolType = feature.properties.charter; {
+        var schoolType = feature.properties.charter; 
 
         var style = {
            weight: 1,
@@ -86,17 +88,17 @@ $.getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
             fillColor:schoolColor(schoolType)
         };
         return style;
-        }
+    }
 
     // ** should this parameter be d? or should it be schoolType? 
     function schoolColor(schoolType) {
 
         if (schoolType ==="charter") {
 
-            fillColor = "#f69705";
+            fillColor = "#f6bc05";
         } 
              else {
-             fillColor = "#d83700";
+             fillColor = "#e53609";
              }
 
         return fillColor;
@@ -113,7 +115,7 @@ var count = 0;
 
 // on each feature function that loops through the dataset, binds popups, and creates a count
 var schoolsOnEachFeature = function(feature, layer){
-    // layer refers to leaflet function below
+    // ...layer) refers to leaflet layer.on function below : that creates or is considered a layer
     // *** parameters to feed into function should be dataset -- features
     // var schoolInfo = (feature.properties);
     // bind some feature properties to a pop up with an .on("click", ...) command. Do this so we can fire it both on and off the map
@@ -123,23 +125,14 @@ var schoolsOnEachFeature = function(feature, layer){
         popup.setLatLng(bounds.getCenter());
         popup.setContent(popContent);
         map.openPopup(popup);
-    })
+    });
 
     // add an ID to each layer so we can fire the popup outside of the map
     layer._leaflet_id = 'schoolsLayerID' + count; 
     count++;
 
-    };
-      
-
-// district 13 shape
-d13PolygonGeoJSON.addTo(map);
-
-// school data
-SchoolDemographicsGeoJSON.addTo(map);
-
 };
-});
+      
 
 
 function createLayerControls(){
@@ -155,10 +148,44 @@ function createLayerControls(){
 
     // CONTROL
     L.control.layers(baseMaps, overlayMaps).addTo(map);
-    
-};
- 
 }
+
+ // district 13 shape
+d13PolygonGeoJSON.addTo(map);
+
+// school data
+SchoolDemographicsGeoJSON.addTo(map);
+
+createLayerControls(); 
+};
+
+// create a container for the legend and set the location
+
+var legend = L.control({position: 'bottomleft'});
+
+// using a function, create a div element for the legend and return that div
+legend.onAdd = function (map) {
+
+    // a method in Leaflet for creating new divs and setting classes
+    var div = L.DomUtil.create('div', 'legend'),
+        colors = [fillColor="#f6bc05", fillColor = "#e53609"]
+//schoolColor
+        div.innerHTML += '<p>Public Schools <br />in Brooklyn, <br />District 13 </p>';
+// scoolStyle is undefined, legend not working. How to build this? what should loop refer to in if/else statement?
+        for (var i = 0; i < schoolStyle.length; i++) {
+        div.innerHTML +=
+               '<i style="background:' + schoolStyle(colors[i] + 1) + '"></i> ' +
+            colors[i] + (colors[i + 1] ? '&ndash;' + colors[i + 1] + '<br>' : '+');
+    }
+
+    return div;
+};
+
+
+// add the legend to the map
+legend.addTo(map);
+
+
 
 // function to create a list in the right hand column with links that will launch the pop-ups on the map
 function createListForClick(dataset) {
@@ -175,7 +202,6 @@ function createListForClick(dataset) {
         .enter()
         .append("li")
         .html(function(d) { 
-            console.log(d);
             return '<a href="#">' + d.properties.School + '</a>' + "<br>" + d.properties.schoolType + "<br>";
         })
 
