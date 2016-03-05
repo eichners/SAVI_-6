@@ -1,0 +1,32 @@
+NOTES FOR SCHOOL WEB MAP
+
+
+HEX COLORS USED:
+Blue: #1381ab
+Yellow/orange: #f6bc05
+Red: #e53609 
+
+
+from D3: 
+blue: #1f77b4
+orange: #ff7f0e
+green: #2ca02c
+darker green: #44804E
+dark red: #d62728
+purple: #9467bd
+brown: #8c564b
+pink: #e377c2
+grey: #7f7f7f
+yellow/green: #bcbd22
+teal blue: #17becf
+
+
+
+
+
+SET UP LOCAL SERVER:
+use terminal
+type: python -m SimpleHTTPServer
+should start running. use this address for browser to start: 
+
+http://127.0.0.1:8000

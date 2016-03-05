@@ -5,6 +5,7 @@ var map = L.map('map');
     [40.700211, -73.989289]
 ]);
 var OpenMapSurfer_Grayscale = L.tileLayer('http://korona.geog.uni-heidelberg.de/tiles/roadsg/x={x}&y={y}&z={z}', {
+     minZoom: 11,
     maxZoom: 19,
     attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 });
@@ -39,7 +40,7 @@ $.getJSON( "geojson/D13_polygon.geojson", function( data ) {
             weight: 2,
             color:"#1381ab",
             fillColor: 'White',
-            fillOpacity: 0.0
+            fillOpacity: 0.5
 
         };
         return style;
@@ -64,6 +65,7 @@ $.getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
     plotDataset(dataset);
     //create the sidebar with links to fire polygons on the map
     createListForClick(dataset);
+    addToMap();
 });
     // function to plot the dataset passed to it -- does this mean I can now access data with d when using d3?
     function plotDataset(dataset) {
@@ -72,7 +74,7 @@ $.getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
     onEachFeature: schoolsOnEachFeature
     // school building data did not show up because I'd removed the .addTo(map) -- still have error showing up related to addTo on line 138:
     // addTo is undefined "cannot read property 'addTo' of undefined"
-    }).addTo(map);
+    });
 
     // create layer controls
     createLayerControls(); 
@@ -84,7 +86,7 @@ $.getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
         var style = {
            weight: 1,
             color:'Black',
-            fillOpacity: 1,
+            fillOpacity: .9,
             fillColor:schoolColor(schoolType)
         };
         return style;
@@ -95,7 +97,7 @@ $.getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
 
         if (schoolType ==="charter") {
 
-            fillColor = "#f6bc05";
+            fillColor = "#ff7f0e";
         } 
              else {
              fillColor = "#e53609";
@@ -132,8 +134,7 @@ var schoolsOnEachFeature = function(feature, layer){
     count++;
 
 };
-      
-
+};   
 
 function createLayerControls(){
     // add in layer controls
@@ -150,38 +151,40 @@ function createLayerControls(){
     L.control.layers(baseMaps, overlayMaps).addTo(map);
 }
 
- // district 13 shape
+
+
+
+
+
+function addToMap() {
+     // district 13 shape
 d13PolygonGeoJSON.addTo(map);
 
 // school data
 SchoolDemographicsGeoJSON.addTo(map);
 
-createLayerControls(); 
-};
+createLayerControls();
+}
 
 // create a container for the legend and set the location
-
+//creating permenant big legend
 var legend = L.control({position: 'bottomleft'});
 
-// using a function, create a div element for the legend and return that div
 legend.onAdd = function (map) {
 
-    // a method in Leaflet for creating new divs and setting classes
-    var div = L.DomUtil.create('div', 'legend'),
-        colors = [fillColor="#f6bc05", fillColor = "#e53609"]
-//schoolColor
-        div.innerHTML += '<p>Public Schools <br />in Brooklyn, <br />District 13 </p>';
-// scoolStyle is undefined, legend not working. How to build this? what should loop refer to in if/else statement?
-        for (var i = 0; i < schoolStyle.length; i++) {
-        div.innerHTML +=
-               '<i style="background:' + schoolStyle(colors[i] + 1) + '"></i> ' +
-            colors[i] + (colors[i + 1] ? '&ndash;' + colors[i + 1] + '<br>' : '+');
-    }
+    var div = L.DomUtil.create('div', 'info legend');
+    // this is an html legend instead of leaflet generated through functions
+    // circles for legend are svg elements
+        div.innerHTML += 
+            '<b>District 13, Brooklyn</b><br />' +
+            '<svg class="left" width="22" height="18"><circle cx="10" cy="9" r="6" class="legendSvg1"/></svg><span>Charter School</span><br />' +
+            '<svg class="left" width="22" height="18"><circle cx="10" cy="9" r="6" class="legendSvg2"/></svg><span>Public School</span><br />' 
+            '<b>Credits</b>' +
+            '<span>Data from the <a href=\"http://www.dec.ny.gov/chemical/90321.html\">NYC DOE</a><br />' + 
+            'and from <a href=\"http://www.insideschools.org\">InsideSchools.org</a></span><br />';
 
     return div;
 };
-
-
 // add the legend to the map
 legend.addTo(map);
 
@@ -195,14 +198,12 @@ function createListForClick(dataset) {
                 .append("ul");
 
     // now that we have a selection and something appended to the selection, let's create all of the list elements (li) with the dataset we have 
-    // can I use the geojson file for this? example uses a csv
-    // I don't understand how to return the category I want
     ULs.selectAll("li")
         .data(dataset.features)
         .enter()
         .append("li")
-        .html(function(d) { 
-            return '<a href="#">' + d.properties.School + '</a>' + "<br>" + d.properties.schoolType + "<br>";
+        .html(function(d) {  
+        return '<a href="#">' + d.properties.School + '</a>' + "<br>" + d.properties.schoolType + "<br>";
         })
 
         .on('click', function(d, i) {
