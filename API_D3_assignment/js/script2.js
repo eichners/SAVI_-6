@@ -31,8 +31,10 @@ addDistrict13();
 function addDistrict13() {
 // use jQuery get geoJSON to grab geoJson layer, parse it, then plot it on the map using the plotDataset function
 $.getJSON( "geojson/D13_polygon.geojson", function( data ) {
-    var d13Polygon = data;
-
+    var d13Polygon = data; // d13Polygon defines content for parameters in function called above (data)
+    // this variable will have data attached to it and will be called back after:
+    // style is defined and returned, then by calling variable and putting it and style in funciton, they get tied together to the d13Polygon dataset
+    // at end of this block, add next layer of data (schoolData)
     // should I be creating this style with a function or just by defining variable d13Style?
     var d13Style = function (feature, latlng) {
 
@@ -56,18 +58,21 @@ $.getJSON( "geojson/D13_polygon.geojson", function( data ) {
   
 }
 
+// new function block starts here with adding SchoolData
 function addSchoolData() {
 
-// use jQuery get geoJSON to grab geoJson layer, parse it, then plot it on the map using the plotDataset function
+// use jQuery get geoJSON to grab geoJson layer, parse it, then since we're using D# plot it on the map using the plotDataset function
 $.getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
-    var dataset = data; // d3
+    var dataset = data; // d3: I guess this stores data in memory to have ready for assigning id numbers and binding data and preparing for events
     // draw the dataset on the map
     plotDataset(dataset);
     //create the sidebar with links to fire polygons on the map
     createListForClick(dataset);
     addToMap();
+    // note that we had to make separate blocks of code for this. Didn't work when all the below were enclosed by initial get json function
 });
     // function to plot the dataset passed to it -- does this mean I can now access data with d when using d3?
+    // dataset was created above in plot dataset function, now ready to attach styles and OnEachFeature stuff
     function plotDataset(dataset) {
     SchoolDemographicsGeoJSON = L.geoJson(dataset, {
     style: schoolStyle,
