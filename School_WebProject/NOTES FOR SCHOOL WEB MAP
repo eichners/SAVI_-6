@@ -21,6 +21,9 @@ yellow/green: #bcbd22
 teal blue: #17becf
 
 
+School Enrollment 2006 - 2015
+
+use time series map for basis
 
 
 
@@ -30,3 +33,8 @@ type: python -m SimpleHTTPServer
 should start running. use this address for browser to start: 
 
 http://127.0.0.1:8000
+
+
+data notes:
+
+School enrollment comes from the NYC DOE: demographic snapshots; Public schools have mandatory reporting as do charter schools. However, charter schools were not required to report before 2011, I think.

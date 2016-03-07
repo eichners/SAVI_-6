@@ -1,13 +1,11 @@
 
-// Assignment 5: API D3 
-
 var map = L.map('map');
     map.fitBounds([
     [40.685626, -73.956567],
     [40.700211, -73.989289]
 ]);
 var OpenMapSurfer_Grayscale = L.tileLayer('http://korona.geog.uni-heidelberg.de/tiles/roadsg/x={x}&y={y}&z={z}', {
-     minZoom: 10,
+     minZoom: 11,
     maxZoom: 19,
     attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 });
@@ -27,16 +25,28 @@ map.addLayer(OpenMapSurfer_Grayscale);
 // set data layer as global variable so we can use it in the layer control below
 var d13PolygonGeoJSON;
 var SchoolDemographicsGeoJSON;
+var demographicsCTPerSqMileGeoJSON;
+
+funciton addDemographicsCT2013() {
+$.getJSON("geojson/DemogPerSqMi_CT_2013.geojson", function(data) {
+    var CT2013DemographicsStyle = dta;
+
+    var CT2013Style = function (feature, layer)
+})
+// carry on with this function to add census tract demographic data
+}
+
+
+
+
 
 addDistrict13(); 
 
 function addDistrict13() {
 // use jQuery get geoJSON to grab geoJson layer, parse it, then plot it on the map using the plotDataset function
 $.getJSON( "geojson/D13_polygon.geojson", function( data ) {
-    var d13Polygon = data; // d13Polygon defines content for parameters in function called above (data)
-    // this variable will have data attached to it and will be called back after:
-    // style is defined and returned, then by calling variable and putting it and style in funciton, they get tied together to the d13Polygon dataset
-    // at end of this block, add next layer of data (schoolData)
+    var d13Polygon = data;
+
     // should I be creating this style with a function or just by defining variable d13Style?
     var d13Style = function (feature, latlng) {
 
@@ -44,7 +54,7 @@ $.getJSON( "geojson/D13_polygon.geojson", function( data ) {
             weight: 2,
             color:"#1381ab",
             fillColor: 'White',
-            fillOpacity: 0.0
+            fillOpacity: 0.5
 
         };
         return style;
@@ -60,21 +70,18 @@ $.getJSON( "geojson/D13_polygon.geojson", function( data ) {
   
 }
 
-// new function block starts here with adding SchoolData
 function addSchoolData() {
 
-// use jQuery get geoJSON to grab geoJson layer, parse it, then since we're using D# plot it on the map using the plotDataset function
+// use jQuery get geoJSON to grab geoJson layer, parse it, then plot it on the map using the plotDataset function
 $.getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
-    var dataset = data; // d3: I guess this stores data in memory to have ready for assigning id numbers and binding data and preparing for events
+    var dataset = data; // d3
     // draw the dataset on the map
     plotDataset(dataset);
     //create the sidebar with links to fire polygons on the map
     createListForClick(dataset);
     addToMap();
-    // note that we had to make separate blocks of code for this. Didn't work when all the below were enclosed by initial get json function
 });
     // function to plot the dataset passed to it -- does this mean I can now access data with d when using d3?
-    // dataset was created above in plot dataset function, now ready to attach styles and OnEachFeature stuff
     function plotDataset(dataset) {
     SchoolDemographicsGeoJSON = L.geoJson(dataset, {
     style: schoolStyle,
@@ -104,7 +111,7 @@ $.getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
 
         if (schoolType ==="charter") {
 
-            fillColor = "#f6bc05";
+            fillColor = "#ff7f0e";
         } 
              else {
              fillColor = "#e53609";
@@ -159,7 +166,7 @@ function createLayerControls(){
 }
 
 
- 
+
 
 
 
@@ -205,14 +212,12 @@ function createListForClick(dataset) {
                 .append("ul");
 
     // now that we have a selection and something appended to the selection, let's create all of the list elements (li) with the dataset we have 
-    // can I use the geojson file for this? example uses a csv
-    // I don't understand how to return the category I want
     ULs.selectAll("li")
         .data(dataset.features)
         .enter()
         .append("li")
-        .html(function(d) { 
-            return '<a href="#">' + d.properties.School + '</a>' + "<br>" + d.properties.schoolType + "<br>";
+        .html(function(d) {  
+        return '<a href="#">' + d.properties.School + '</a>' + "<br>" + d.properties.schoolType + "<br>";
         })
 
         .on('click', function(d, i) {
