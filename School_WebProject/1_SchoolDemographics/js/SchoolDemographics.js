@@ -157,13 +157,13 @@ var schoolsOnEachFeature = function(Feature, layer){
 
     // add an ID to each layer so we can fire the popup outside of the map
     layer._leaflet_id = 'schoolsLayerID' + count; 
-    count++;
-
-  // draw pie for first selected
+// only do this count once
+  // draw pie for first selected -- 
     if (count == 0) {
-        updatePie(feature);
+        updatePie(Feature);
     } 
-    count++;  
+        count++;
+
 }
 
 
@@ -189,10 +189,10 @@ legend.onAdd = function (map) {
     // circles for legend are svg elements
         div.innerHTML += 
             '<p><b>District 13, Brooklyn</b><br />' +
-            '<svg class="left" width="22" height="18"><circle cx="10" cy="13" r="6" class="legendSvg1"/></svg><span>Charter School</span><br />' +
-            '<svg class="left" width="22" height="18"><circle cx="10" cy="13" r="6" class="legendSvg2"/></svg><span>Public School</span><br /></p>' +
+            '<svg class="left" width="22" height="20"><circle cx="10" cy="14" r="6" class="legendSvg1"/></svg><span>Charter School</span><br />' +
+            '<svg class="left" width="22" height="20"><circle cx="10" cy="14" r="6" class="legendSvg2"/></svg><span>Public School</span><br /></p>' +
             '<p><b>Data</b><br />' +
-            '<span>from the <a href=\"http://www.dec.ny.gov/chemical/90321.html\">NYC DOE</a><br />' + 
+            '<span>from the <a href=\"http://schools.nyc.gov/default.htm\">NYC DOE</a><br />' + 
             'and <a href=\"http://www.insideschools.org\">InsideSchools.org</a></span><br /></p>';
 
     return div;
@@ -202,52 +202,53 @@ legend.addTo(map);
 
 
 
-////////////////// NOTHING BELOW IS WORKING, NOTHING LOGGING TO CONSOLE EITHER.
+////////////////// NOTHING BELOW IS WORKING, NOTHING past line 213 LOGGING TO CONSOLE EITHER.
 
 // function to create a list in the right hand column with links that will launch the pop-ups on the map
 function createDropdown(dataset) {
+    console.log(dataset);
     // use d3 to select the div and then iterate over the dataset appending a list element with a link for clicking and firing
     // first we'll create an unordered list ul elelemnt inside the <div id='list'></div>. The result will be <div id='list'><ul></ul></div>
     var school_dropdown = d3.select("#school_dropdown")
                 .append("select")
                 .attr("class","form-control")
                 .on("change", change);
-    console.log(dataset);
+
     var options = school_dropdown.selectAll("option")
-            .data(dataset.Feature)
+            .data(dataset.features)
             .enter()
             .append("option")
             .html(function(d) {
-                return d.properties.School ;
+                return d.properties.School;
                 //+ " " + d.properties.charter
             });
 
-                var ULs = d3.select("#list")
-                .append("ul");
+                // var ULs = d3.select("#list")
+                // .append("ul");
 
-    // I don't think this part of the code was in the class 12 example, it's necessary for the list though,? 
-    // now that we have a selection and something appended to the selection, let's create all of the list elements (li) with the dataset we have 
-    ULs.selectAll("li")
-        .data(dataset.Feature)
-        .enter()
-        .append("li")
-        .html(function(d) {  
-        return '<a href="#">' + d.properties.School; 
-        //+ '</a>' + "<br>" + d.properties.schoolType + "<br>";
-        })
+    ///////// Code below was for the list displayed in a div from earlier class example. Above code displays list in dropdown
+    // // now that we have a selection and something appended to the selection, let's create all of the list elements (li) with the dataset we have 
+    // ULs.selectAll("li")
+    //     .data(dataset.feature)
+    //     .enter()
+    //     .append("li")
+    //     .html(function(d) {  
+    //     return '<a href="#">' + d.properties.School; 
+    //     //+ '</a>' + "<br>" + d.properties.schoolType + "<br>";
+    //     })
 
-        .on('click', function(d, i) {
-            var leafletId = 'schoolsLayerID' + i;
-            map._layers[leafletId].fire('click');
-        });
+    //     .on('click', function(d, i) {
+    //         var leafletId = 'schoolsLayerID' + i;
+    //         map._layers[leafletId].fire('click');
+    //     });
 
-           
 
   function change() {
 
         // get id of selected and fire click
         var si = school_dropdown.property('selectedIndex');
         var leafletId = 'schoolsLayerID' + si; // leaflet array ids are set above at top of doc?
+        console.log(leafletId);
         map._layers[leafletId].fire('click'); // ids are set for d3 and leaflet so both should be the same
 
         // get data out of selected and draw pie chart
@@ -257,7 +258,12 @@ function createDropdown(dataset) {
         var feature = s.datum(); // s.datum()  extracts whatever is bound to this element (d3 function?)
         // draw pie chart
         updatePie(feature);
+////**********///////// updatePie2(feature);
     }
+    }
+
+//// *********create update pie 2 here, just like function updatePie(feature) {
+// but with other data like ELL and reduced lunch}
 
 
 ////////////////////////PIECHART 
@@ -266,7 +272,7 @@ function updatePie(feature) { //passes in one feature from data set
 
     // remove any previous content from svg
     d3.select('#d3vis').html(''); // set html(' ') to be empty: id is in new row in html doc. div there has an svg container as placeholder
-
+     console.log(feature);
     // set up dataset
 
 // ARRAY: 4 categories, all with same keys; labels: .... values: .... 
@@ -274,7 +280,9 @@ function updatePie(feature) { //passes in one feature from data set
                       {"label":"White", "value":feature.properties.PerWhite}, 
                       {"label":"Asian", "value":feature.properties.PerAsian},
                       {"label":"Hispanic", "value":feature.properties.PerHispanic}];
-     console.log(features);
+                 //   {"label":"Data Not Available", "value":feature.properties.PerHispanic(null)}];     
+                 // null value line says unexpected token : is a problem                 
+     console.log(feature);
 // nothing logging here on line 274
 //colors: green #51b266 3f9409 blue; 60b9cc, 5c82a5 1a6ab4
 
@@ -285,7 +293,7 @@ function updatePie(feature) { //passes in one feature from data set
 
     // set color scale and range
     var color = d3.scale.ordinal() // tells d3 to pass in the string (label name) to determine color
-        .range(["#5c82a5", "#3f9409", "#a05d56", "#d0743c",]);
+        .range(["#2A87B5", "#bcbd22", "#ff7f0e", "#d62728", '#D0D4D6']);
 
             //fillColor = "#ff7f0e"; fillColor = "#e53609";
     // set inner and outer radius
@@ -293,7 +301,7 @@ function updatePie(feature) { //passes in one feature from data set
         .outerRadius(radius - 12)
         .innerRadius(50); // if not 0 this will be donut chart
 
-    // set labels
+    // set labels  change radius to change where text falls
     var labelArc = d3.svg.arc() // how far from edge
         .outerRadius(radius - 100) // setting label to start 100 px from edge of chart
         .innerRadius(radius - 100); // need to set both outer and inner or arc function won't work
@@ -324,7 +332,7 @@ function updatePie(feature) { //passes in one feature from data set
     g.append("path")
         .attr("d", arc) // cerate an attribute d for the path - we created arc function earlier around line 220
         .style("fill", function(d) { 
-            console.log(d); // this will show everything that has been bound to d with pie function
+           // console.log(d); // this will show everything that has been bound to d with pie function
         return color(d.data.label); }); // now data is bound to d, setting which data to show needs another step down list : d.data.value ...
         //fill color is determined by layer
 
@@ -335,7 +343,7 @@ function updatePie(feature) { //passes in one feature from data set
         .text(function(d) { return d.data.label + " (" + numberWithCommas(d.data.value) + ")"; });
 
 };
-}
+
 
 function addToMap() {
      // district 13 shape
@@ -344,11 +352,14 @@ d13PolygonGeoJSON.addTo(map);
 // school data
 SchoolDemographicsGeoJSON.addTo(map);
 leaflet_GeoJSON.addToMap;
-}
+};
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-};
-
+}
+/// to remove numbers after decimal point: 
+// function numberWithoutDecimals(x) {
+ //   return x.toFixed().replace(1);
+// }
 
 
 //

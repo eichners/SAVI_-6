@@ -96,17 +96,51 @@ $.getJSON( "geojson/D13_Enrollment_06-15.geojson", function( data ) {
     var schoolPointToLayer = function (features, latlng) {
 
         var growthDecline = features.properties.GrowthDecline;
+        var publicCharter = features.properties.DBN 
+
+        console.log(growthDecline);
    
-        var schoolMarker = L.circle(latlng, 100, {
+        var schoolMarker = L.circleMarker(latlng, {
             // radius: feature.properties.Growthdecline;
             weight: 1,
             color:'black',
-            fillColor:'red',
-            fillOpacity: 0.5
-          // radius: markerRadius
+            fillColor: markerColor(publicCharter, growthDecline),
+            fillOpacity: 0.5,
+            radius: markerRadius(growthDecline)
     });
         return schoolMarker;
     }
+// find top range of G/D and set if/else stuff here for radius
+    function markerRadius (d) {
+    return d > 600 ?  60 :
+           d > 500  ? 50 :
+           d > 400  ? 40 :
+           d > 300  ? 30 :
+           d > 200  ? 20 :
+           d > 100  ? 10 :
+           d >   0  ? 1 :
+           d > -100 ? 10 :
+           d > -200 ? 20 :
+           d > -300 ? 30 :
+           d > -400 ? 40 :
+           d > -500 ? 50 :
+           d > -600 ? 60 :
+                      70 ;
+
+    }
+
+    function markerColor (d, f) {
+   console.log(f);
+    console.log(d.substring(0,1,2));
+    return d.substring(0,1) === "8" && f > 0 ? '#FF0000' :
+
+           d.substring(0,1) === "8" && f <= -1 ? '#d95f0e' :
+           d.substring(0,1) === "1" && f >= 0 ? '#fe9929' :
+                    '#ffffd4';
+}
+
+  //  }
+
     //var radius = radius(feature.properties.Growth\/dec*10)
 
     var schoolClick = function (Feature, layer) {

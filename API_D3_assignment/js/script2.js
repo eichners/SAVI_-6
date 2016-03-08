@@ -71,7 +71,7 @@ $.getJSON( "geojson/SchoolDemographicsWGS84.geojson", function( data ) {
     //create the sidebar with links to fire polygons on the map
     createListForClick(dataset);
     addToMap();
-    // note that we had to make separate blocks of code for this. Didn't work when all the below were enclosed by initial get json function
+    // these functions are still contained in thtis one layer block, but separated into subblocks. dataset variable still available here from above. json function
 });
     // function to plot the dataset passed to it -- does this mean I can now access data with d when using d3?
     // dataset was created above in plot dataset function, now ready to attach styles and OnEachFeature stuff
