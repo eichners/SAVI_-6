@@ -82,7 +82,7 @@ $.getJSON( "geojson/D13_polygon.geojson", function( data ) {
 function addSchoolSizeData() {
 // use jQuery get geoJSON to grab geoJson layer, parse it, then plot it on the map using the plotDataset function
 // geojson/D13Enrollment06-15_AccurateLoc.geojson
-$.getJSON( "geojson/D13_Enrollment_06-15.geojson", function( data ) {
+$.getJSON( "geojson/D13_Enrollment_06-15_2.geojson", function( data ) {
     var schools = data;
       console.log(data);
     // draw the dataset on the map
@@ -130,24 +130,74 @@ $.getJSON( "geojson/D13_Enrollment_06-15.geojson", function( data ) {
     }
 
     function markerColor (d, f) {
-   console.log(f);
-    console.log(d.substring(0,1,2));
-    return d.substring(0,1) === "8" && f > 0 ? '#FF0000' :
+      return d.substring(0,1) === "8" && f > 0 ? '#FF0000' :
 
            d.substring(0,1) === "8" && f <= -1 ? '#d95f0e' :
            d.substring(0,1) === "1" && f >= 0 ? '#fe9929' :
                     '#ffffd4';
 }
-
-  //  }
-
-    //var radius = radius(feature.properties.Growth\/dec*10)
+//  }
 
     var schoolClick = function (Feature, layer) {
-        layer.bindPopup(Feature.properties.school); 
-        //     + "<br />" + 
-        // "<p>Enrollment 2006: <p>" + features.properties._2006_1);
-        // //  + "<br />" +
+          /////// var popupText attemtps to make popup ignore 0 value properties and instead show first year with data for enrollment
+
+       var enrollment = (feature.properties);
+
+        if (d._2006 == 0) {
+          d._2007;
+        } else if (d._2006 != 0) {
+          'Enrollment 2006: ' + d._2006 + '<br />';
+        } else if (d._2007 == 0) {
+          d._2008;
+        } else if (d._2007) {
+          'Enrollment 2007: ' + d._2007 + '<br />';
+        } else if (d._2008 == 0) {
+          d._2009;
+        } else if (d._2008 != 0) {
+          'Enrollment 2008: ' + d._2008 + '<br />';
+        } else if (d._2009 == 0) {
+          d._2010;
+        } else if (d._2009 != 0) {
+          'Enrollment 2009: ' + d._2009 + '<br />';
+        } else if (d._2010 == 0) {
+          d._2011;
+        } else if (d._2010 != 0) {
+          'Enrollment 2010: ' + d._2010 + '<br />';
+        } else if (d._2011 == 0) {
+          d._2012;
+        } else if (d._2011 != 0) {
+          'Enrollment 2011: ' + d._2011 + '<br />';
+        } else if (d._2012 == 0) {
+          d._2013;
+        } else if (d._2012 != 0) {
+          'Enrollment 2012: ' + d._2012 + '<br />';
+        } else if (d._2013 == 0) {
+          d._2014;
+        } else if (d._2013 != 0) {
+          'Enrollment 2013: ' + d._2013 + '<br />';
+        } else if (d._2014 == 0) {
+          '<br />';
+        } else (d._2014 != 0) 
+          'Enrollment 2014: ' + d._2014 + '<br />';
+        }
+      
+
+        var popupContent = '<b>' + Feature.properties.School + '</B>'
+            + '<b>' + enrollment + '</b>' + 
+            '<b>Enrollment 2015: </b>' + Feature.properties._2015;
+
+      var popupOptions = {
+        minWidth: 50,
+        maxWidth: 150, // make sure popup window doesn't get too big
+        autoPanPadding: new L.Point(5, 60) // this makes sure the popup pushes down from the top (with space) of map rather than being hidden
+ 
+        layer.bindPopup(popupContent, popupOptions)
+    };
+        // popupText += (Feature.properties._2006) ? '' + Feature.properties._2006 : '';
+        // popupText += (Feature.properties._2015) ? '' + Feature.properties._2015 : '';
+        // popupText += (Feature.properties.GrowthDecline) ? '' + Feature.properties.GrowthDecline : '';
+
+        //  + "<br />" +
         // "2007: " + features.properties._2007 + "<br />" +
         // "2008: " + features.properties._2008 + "<br />" + 
         // "2009: " + features.properties._2009 + "<br />" + 
